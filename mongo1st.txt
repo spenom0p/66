@@ -1,0 +1,100 @@
+Here's an example of inserting 10 employee documents into a collection named `employees` and then querying to show the inserted data:
+
+1. **Insert 10 Employee Documents**:
+   ```javascript
+   db.employees.insertMany([
+     { name: "John Doe", age: 30, city: "New York" },
+     { name: "Alice Smith", age: 35, city: "Los Angeles" },
+     { name: "Bob Johnson", age: 40, city: "Chicago" },
+     { name: "Jane Brown", age: 25, city: "San Francisco" },
+     { name: "Michael Davis", age: 45, city: "Seattle" },
+     { name: "Sarah Wilson", age: 32, city: "Boston" },
+     { name: "David Clark", age: 28, city: "Denver" },
+     { name: "Emily Martinez", age: 38, city: "Dallas" },
+     { name: "James Rodriguez", age: 42, city: "Miami" },
+     { name: "Jennifer Lee", age: 29, city: "Houston" }
+   ]);
+   ```
+
+2. **Query to Show Inserted Data**:
+   ```javascript
+   db.employees.find();
+   ```
+
+This will insert 10 employee documents into the `employees` collection and then retrieve all documents in the collection to show the inserted data. Adjust the names, ages, and cities as needed for your data.
+
+
+Sure! Let's apply all the methods you mentioned to the `employees` collection after inserting the 10 employee documents:
+
+1. **Insert Documents**:
+   - `insertOne(document)`: Inserts a single document into the collection.
+     ```javascript
+     db.employees.insertOne({ name: "John Doe", age: 25, city: "New York" });
+     ```
+   - `insertMany([document1, document2, ...])`: Inserts multiple documents into the collection.
+     ```javascript
+     db.employees.insertMany([
+       { name: "Alice", age: 30, city: "San Francisco" },
+       { name: "Bob", age: 28, city: "Los Angeles" }
+     ]);
+     ```
+
+2. **Update Documents**:
+   - `updateOne(filter, update)`: Updates a single document matching the filter.
+     ```javascript
+     db.employees.updateOne({ name: "John Doe" }, { $set: { age: 26 } });
+     ```
+   - `updateMany(filter, update)`: Updates multiple documents matching the filter.
+     ```javascript
+     db.employees.updateMany({ city: "New York" }, { $set: { city: "Chicago" } });
+     ```
+
+3. **Delete Documents**:
+   - `deleteOne(filter)`: Deletes a single document matching the filter.
+     ```javascript
+     db.employees.deleteOne({ name: "Alice" });
+     ```
+   - `deleteMany(filter)`: Deletes multiple documents matching the filter.
+     ```javascript
+     db.employees.deleteMany({ age: { $lt: 30 } });
+     ```
+
+4. **Query Documents**:
+   - `find(filter)`: Retrieves documents based on the specified filter.
+     ```javascript
+     db.employees.find({ age: { $gte: 25 } });
+     ```
+   - `findOne(filter)`: Retrieves the first document matching the filter.
+     ```javascript
+     db.employees.findOne({ name: "John Doe" });
+     ```
+
+5. **Aggregation Framework**:
+   - `aggregate(pipeline)`: Performs aggregation operations on the collection data.
+     ```javascript
+     db.employees.aggregate([
+       { $group: { _id: "$city", averageAge: { $avg: "$age" } } }
+     ]);
+     ```
+
+6. **Indexing**:
+   - `createIndex(keys)`: Creates an index on one or more fields.
+     ```javascript
+     db.employees.createIndex({ name: 1 });
+     ```
+   - `getIndexes()`: Retrieves the indexes on the collection.
+     ```javascript
+     db.employees.getIndexes();
+     ```
+
+7. **Text Search**:
+   - `createIndex({ "$**": "text" })`: Creates a text index for full-text search.
+     ```javascript
+     db.employees.createIndex({ "$**": "text" });
+     ```
+   - `find({ $text: { $search: "keyword" } })`: Performs a text search.
+     ```javascript
+     db.employees.find({ $text: { $search: "MongoDB" } });
+     ```
+
+Please note that the actual results of these operations will depend on the data in your `employees` collection and the specific filter criteria you use. Adjust the examples as needed for your data.

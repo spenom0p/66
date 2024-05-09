@@ -1,0 +1,77 @@
+-- Create database named 'test'
+create database test;
+
+-- Use the 'test' database
+use test;
+
+-- Create 'Orders' table to store order details
+CREATE TABLE Orders (
+    OrderID INT PRIMARY KEY,
+    CustomerID INT,
+    OrderDate DATE,
+    TotalAmount DECIMAL(10, 2)
+);
+
+-- Create 'Customers' table to store customer information
+CREATE TABLE Customers (
+    CustomerID INT PRIMARY KEY,
+    FirstName VARCHAR(50),
+    LastName VARCHAR(50)
+);
+
+-- Insert sample data into the 'Orders' table
+INSERT INTO Orders (OrderID, CustomerID, OrderDate, TotalAmount)
+VALUES
+    (1, 101, '2024-03-01', 100.00),
+    (2, 102, '2024-03-02', 150.00),
+    (3, 101, '2024-03-03', 200.00),
+    (4, 103, '2024-03-04', 75.00),
+    (5, 101, '2024-03-05', 300.00),
+    (6, 102, '2024-03-06', 125.00);
+
+-- Insert sample data into the 'Customers' table
+INSERT INTO Customers (CustomerID, FirstName, LastName)
+VALUES
+    (101, 'John', 'Doe'),
+    (102, 'Jane', 'Smith'),
+    (103, 'Alice', 'Johnson');
+
+-- Example of using ROLLUP to calculate total amount per customer and overall total
+SELECT CustomerID, SUM(TotalAmount) AS TotalAmount
+FROM Orders
+GROUP BY CustomerID WITH ROLLUP;
+-- ROLLUP computes the subtotal and total across different levels in the hierarchy defined by the GROUP BY clause.
+
+-- Example of using ROLLUP with multiple grouping columns to calculate total amount per customer, per order date, and overall total
+SELECT CustomerID, OrderDate, SUM(TotalAmount) AS TotalAmount
+FROM Orders
+GROUP BY CustomerID, OrderDate
+WITH ROLLUP;
+-- This provides subtotal rows at different levels of granularity defined by the GROUP BY clause.
+
+-- Example of using FIRST_VALUE and LAST_VALUE window functions to find the first and last order dates per customer
+SELECT CustomerID,
+       FIRST_VALUE(OrderDate) OVER (PARTITION BY CustomerID ORDER BY OrderDate) AS FirstOrderDate,
+       LAST_VALUE(OrderDate) OVER (PARTITION BY CustomerID ORDER BY OrderDate ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS LastOrderDate
+FROM Orders;
+-- These window functions operate on a specified window (or partition) of rows, returning the first and last values based on the specified order.
+
+-- Example of using RANK() window function to rank customers by total spending
+SELECT CustomerID, TotalAmount,
+       RANK() OVER (ORDER BY TotalAmount DESC) AS CustomerRank
+FROM (
+    SELECT CustomerID, SUM(TotalAmount) AS TotalAmount
+    FROM Orders
+    GROUP BY CustomerID
+) AS CustomerTotal;
+-- RANK() assigns a rank to each row within a partition based on the ORDER BY clause.
+
+-- Example of using DENSE_RANK() window function to derank customers by total spending
+SELECT CustomerID, TotalAmount,
+       DENSE_RANK() OVER (ORDER BY TotalAmount ASC) AS CustomerDeRank
+FROM (
+    SELECT CustomerID, SUM(TotalAmount) AS TotalAmount
+    FROM Orders
+    GROUP BY CustomerID
+) AS CustomerTotal;
+-- DENSE_RANK() assigns ranks to rows within a partition without any gaps, based on the ORDER BY clause.

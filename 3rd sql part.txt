@@ -1,0 +1,178 @@
+A. range partition
+
+1. for year partition
+
+USE student_db;
+
+CREATE TABLE Sales ( cust_id INT NOT NULL, name VARCHAR(40),   
+store_id VARCHAR(20) NOT NULL, bill_no INT NOT NULL,   
+bill_date DATE PRIMARY KEY NOT NULL, amount DECIMAL(8,2) NOT NULL)   
+PARTITION BY RANGE (year(bill_date)) 
+(PARTITION p0 VALUES LESS THAN (2016),   
+PARTITION p1 VALUES LESS THAN (2017),   
+PARTITION p2 VALUES LESS THAN (2018),   
+PARTITION p3 VALUES LESS THAN (2020));  
+INSERT INTO Sales VALUES   
+(1, 'Mike', 'S001', 101, '2015-01-02', 125.56),   
+(2, 'Robert', 'S003', 103, '2015-01-25', 476.50),   
+(3, 'Peter', 'S012', 122, '2016-02-15', 335.00),   
+(4, 'Joseph', 'S345', 121, '2016-03-26', 787.00),   
+(5, 'Harry', 'S234', 132, '2017-04-19', 678.00),   
+(6, 'Stephen', 'S743', 111, '2017-05-31', 864.00),   
+(7, 'Jacson', 'S234', 115, '2018-06-11', 762.00),   
+(8, 'Smith', 'S012', 125, '2019-07-24', 300.00),   
+(9, 'Adam', 'S456', 119, '2019-08-02', 492.20);  
+
+SELECT PARTITION_NAME, TABLE_ROWS   
+FROM INFORMATION_SCHEMA.PARTITIONS  
+WHERE TABLE_SCHEMA = 'mydata' AND TABLE_NAME = 'Sales';  
+
+SELECT * FROM sales PARTITION (p3);
+
+
+2. marks partition
+
+
+use student_bb;
+CREATE TABLE Sstudents (
+    id INT AUTO_INCREMENT,
+    name VARCHAR(40),
+    marks INT NOT NULL,
+    PRIMARY KEY (id, marks)
+) PARTITION BY RANGE (marks) (
+    PARTITION p_fail VALUES LESS THAN (40),
+    PARTITION p_c VALUES LESS THAN (60),
+    PARTITION p_b VALUES LESS THAN (80),
+    PARTITION p_a VALUES LESS THAN (101)
+);
+
+INSERT INTO Sstudents (name, marks) VALUES
+('Alice', 85),
+('Bob', 55),
+('Charlie', 75),
+('David', 35),
+('Eve', 95),
+('Frank', 65),
+('Grace', 45),
+('Hannah', 25),
+('Ivan', 80),
+('Jack', 50);
+SELECT * FROM Sstudents PARTITION (p_fail);
+
+3.
+CREATE TABLE sale_maast (
+    bill_no INT NOT NULL,
+    bill_date TIMESTAMP NOT NULL,
+    cust_code VARCHAR(15) NOT NULL,
+    amount_cents INT NOT NULL
+) PARTITION BY RANGE (amount_cents) (
+    PARTITION p0 VALUES LESS THAN (10000),
+    PARTITION p1 VALUES LESS THAN (50000),
+    PARTITION p2 VALUES LESS THAN (100000),
+    PARTITION p3 VALUES LESS THAN (150000)
+);
+
+INSERT INTO sale_maast VALUES
+(1, '2013-01-02', 'C001', 12556), -- $125.56
+(2, '2013-01-25', 'C003', 45650), -- $456.50
+(3, '2013-02-15', 'C012', 36500), -- $365.00
+(4, '2013-03-26', 'C345', 78500), -- $785.00
+(5, '2013-04-19', 'C234', 65600), -- $656.00
+(6, '2013-05-31', 'C743', 85400), -- $854.00
+(7, '2013-06-11', 'C234', 54200), -- $542.00
+(8, '2013-07-24', 'C003', 30000), -- $300.00
+(9, '2013-08-02', 'C456', 47520); -- $475.20
+SELECT * FROM sale_maast PARTITION (p1);
+
+
+4.
+
+CREATE TABLE sale_maaast (
+    bill_no INT NOT NULL,
+    bill_date TIMESTAMP NOT NULL,
+    cust_code VARCHAR(15) NOT NULL,
+    amount DECIMAL(8,2) NOT NULL
+) PARTITION BY RANGE (UNIX_TIMESTAMP(bill_date)) (
+    PARTITION p0 VALUES LESS THAN (UNIX_TIMESTAMP('2013-04-01')),
+    PARTITION p1 VALUES LESS THAN (UNIX_TIMESTAMP('2013-07-01')),
+    PARTITION p2 VALUES LESS THAN (UNIX_TIMESTAMP('2013-10-01')),
+    PARTITION p3 VALUES LESS THAN (UNIX_TIMESTAMP('2014-01-01'))
+);
+
+INSERT INTO sale_maaast VALUES
+(1, '2013-01-02', 'C001', 125.56),
+(2, '2013-01-25', 'C003', 456.50),
+(3, '2013-02-15', 'C012', 365.00),
+(4, '2013-03-26', 'C345', 785.00),
+(5, '2013-04-19', 'C234', 656.00),
+(6, '2013-05-31', 'C743', 854.00),
+(7, '2013-06-11', 'C234', 542.00),
+(8, '2013-07-24', 'C003', 300.00),
+(9, '2013-08-02', 'C456', 475.20);
+
+SELECT * FROM sale_maaast PARTITION (p1);
+
+
+
+B. list partition
+
+1. 
+east west 
+
+
+CREATE TABLE Stores (
+    cust_name VARCHAR(40),
+    bill_no VARCHAR(20) NOT NULL,
+    store_id INT PRIMARY KEY NOT NULL,
+    bill_date DATE NOT NULL,
+    amount DECIMAL(8,2) NOT NULL
+) PARTITION BY LIST(store_id) (
+    PARTITION pEast VALUES IN (101, 103, 105),
+    PARTITION pWest VALUES IN (102, 104, 106),
+    PARTITION pNorth VALUES IN (107, 109, 111),
+    PARTITION pSouth VALUES IN (108, 110, 112)
+);
+INSERT INTO Stores (cust_name, bill_no, store_id, bill_date, amount) VALUES
+('Customer1', 'B001', 101, '2024-05-10', 100.00),  -- East
+('Customer2', 'B002', 103, '2024-05-10', 150.00),  -- East
+('Customer3', 'B003', 105, '2024-05-10', 200.00),  -- East
+('Customer4', 'B004', 102, '2024-05-10', 120.00),  -- West
+('Customer5', 'B005', 104, '2024-05-10', 180.00),  -- West
+('Customer6', 'B006', 106, '2024-05-10', 220.00),  -- West
+('Customer7', 'B007', 107, '2024-05-10', 90.00),   -- North
+('Customer8', 'B008', 109, '2024-05-10', 160.00),  -- North
+('Customer9', 'B009', 111, '2024-05-10', 210.00),  -- North
+('Customer10', 'B010', 108, '2024-05-10', 80.00),  -- South
+('Customer11', 'B011', 110, '2024-05-10', 140.00), -- South
+('Customer12', 'B012', 112, '2024-05-10', 190.00); -- South
+
+SELECT * FROM stores PARTITION (pEast);
+SELECT * FROM stores PARTITION (pWest);
+SELECT * FROM stores PARTITION (pNorth);
+SELECT * FROM stores PARTITION (pSouth);
+
+2.
+
+CREATE TABLE sale_mast2 (
+    bill_no INT NOT NULL,
+    bill_date TIMESTAMP NOT NULL,
+    agent_code INT NOT NULL,
+    amount INT NOT NULL
+) PARTITION BY LIST(agent_code) (
+    PARTITION pA VALUES IN (1,2,3),
+    PARTITION pB VALUES IN (4,5,6),
+    PARTITION pC VALUES IN (7,8,9,10,11)
+);
+INSERT INTO sale_mast2 (bill_no, bill_date, agent_code, amount) VALUES
+(1, '2024-05-10 08:00:00', 1, 100),
+(2, '2024-05-10 08:30:00', 2, 150),
+(3, '2024-05-10 09:00:00', 3, 200),
+(4, '2024-05-10 09:30:00', 4, 120),
+(5, '2024-05-10 10:00:00', 5, 180),
+(6, '2024-05-10 10:30:00', 6, 220),
+(7, '2024-05-10 11:00:00', 7, 90),
+(8, '2024-05-10 11:30:00', 8, 160),
+(9, '2024-05-10 12:00:00', 9, 210),
+(10, '2024-05-10 12:30:00', 10, 80),
+(11, '2024-05-10 13:00:00', 11, 140);
+SELECT * FROM sale_mast2 PARTITION (pB);

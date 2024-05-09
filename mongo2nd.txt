@@ -1,0 +1,35 @@
+Here are the queries for the given objectives applied to the `employees` collection:
+
+1. **Query with the $eq Operator**:
+   - Objective: Retrieve employees living in Chicago.
+   ```javascript
+   db.employees.find({ city: { $eq: "Chicago" } });
+   ```
+
+2. **Range Queries with $gt and $lt Operators**:
+   - Objective: Retrieve employees older than 30 but younger than 40.
+   ```javascript
+   db.employees.find({ age: { $gt: 30, $lt: 40 } });
+   ```
+
+3. **Sorting Documents with sort Method**:
+   - Objective: Get a list of employees sorted by age in descending order.
+   ```javascript
+   db.employees.find().sort({ age: -1 });
+   ```
+
+4. **Aggregation with $group Stage**:
+   - Objective: Calculate the average age of employees in each city.
+   ```javascript
+   db.employees.aggregate([
+     { $group: { _id: "$city", avgAge: { $avg: "$age" } } }
+   ]);
+   ```
+
+5. **$in Operator for Matching Multiple Values**:
+   - Objective: Retrieve employees living in New York or Los Angeles.
+   ```javascript
+   db.employees.find({ city: { $in: ["New York", "Los Angeles"] } });
+   ```
+
+Please note that these queries assume the `employees` collection has been populated with the provided documents. Adjust the field names and values as needed for your actual data.
